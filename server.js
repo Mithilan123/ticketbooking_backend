@@ -9,13 +9,28 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
+
+/* ---------- MIDDLEWARE ---------- */
 app.use(express.json());
-app.use(cors());
 
-mongoose.connect(process.env.MONGO_URI)
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://busticketbooking-peach.vercel.app"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  })
+);
+
+/* ---------- DATABASE ---------- */
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Atlas Connected Successfully"))
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
 
+/* ---------- ROUTES ---------- */
 app.get("/", (req, res) => {
   res.send("Bus Booking Backend Running");
 });
@@ -23,8 +38,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/buses", busRoutes);
 app.use("/api/bookings", bookingRoutes);
-
-// ⭐ ADMIN ROUTES
 app.use("/api/admin", adminRoutes);
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+/* ---------- EXPORT FOR VERCEL ---------- */
+module.exports = app;
